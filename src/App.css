@@ -1,0 +1,5 @@
+/* App-level styles – global overrides for the birthday gift page */
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
