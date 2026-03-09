@@ -204,12 +204,13 @@ export default function Section8Calendar() {
               <p
                 style={{
                   fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.15rem',
+                  fontSize: '1.25rem',
                   color: 'var(--color-charcoal)',
                   marginBottom: '0.3rem',
+                  fontWeight: 600,
                 }}
               >
-                Víkend 24. – 26. dubna 2026
+                Víkend od 24.4.2026 do 26.4.2026
               </p>
               <p
                 style={{

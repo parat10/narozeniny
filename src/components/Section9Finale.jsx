@@ -138,7 +138,7 @@ export default function Section9Finale() {
         }}
       >
         <motion.a
-          href="https://www.booking.com"
+          href="https://www.booking.com/hotel/cz/luxusni-prazdninovy-dum.cs.html"
           target="_blank"
           rel="noopener noreferrer"
           initial={{ opacity: 0, y: 20 }}

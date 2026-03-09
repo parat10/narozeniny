@@ -7,25 +7,22 @@ const HIDDEN_ITEMS = [
     id: 'swimsuit',
     Icon: Waves,
     label: 'Plavky',
-    emoji: '🏊',
     color: '#4ECDC4',
-    style: { left: '22%', top: '42%' },
+    style: { left: '22%', top: '45%' },
   },
   {
     id: 'wine',
     Icon: Wine,
     label: 'Víno',
-    emoji: '🍷',
     color: '#D4AF37',
-    style: { left: '62%', top: '28%' },
+    style: { left: '65%', top: '30%' },
   },
   {
     id: 'sauna',
     Icon: Thermometer,
     label: 'Sauna',
-    emoji: '🧖',
     color: '#E8927C',
-    style: { left: '78%', top: '62%' },
+    style: { left: '78%', top: '65%' },
   },
 ]
 
@@ -80,10 +77,19 @@ export default function Section4Flashlight({ completed, onEnter, onLeave, onComp
     }
   }, [found, onComplete])
 
-  const maskStyle = {
-    WebkitMaskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
-    maskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
-    pointerEvents: 'none',
+  // Build mask: flashlight circle + permanent holes for found items
+  const buildMask = () => {
+    const masks = []
+    // Main flashlight circle
+    masks.push(
+      `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, transparent 100%)`
+    )
+    // The overall mask: black everywhere except flashlight + found items
+    // We use SVG mask instead for multiple holes
+    return {
+      WebkitMaskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
+      maskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
+    }
   }
 
   return (
@@ -99,68 +105,67 @@ export default function Section4Flashlight({ completed, onEnter, onLeave, onComp
         background: '#0a0a0a',
       }}
     >
-      {/* Background with icons */}
+      {/* Background with clickable icons */}
       <div style={{ position: 'absolute', inset: 0 }}>
-        {HIDDEN_ITEMS.map((item) => (
-          <motion.button
-            key={item.id}
-            onClick={() => handleItemClick(item.id)}
-            whileTap={{ scale: 0.9 }}
-            animate={
-              found.has(item.id)
-                ? { scale: [1, 1.4, 1.2], rotate: [0, -8, 8, 0] }
-                : {}
-            }
-            transition={{ type: 'spring', stiffness: 300 }}
-            style={{
-              position: 'absolute',
-              ...item.style,
-              transform: 'translate(-50%, -50%)',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '1rem',
-              borderRadius: '50%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <div
+        {HIDDEN_ITEMS.map((item) => {
+          const isFound = found.has(item.id)
+          return (
+            <motion.button
+              key={item.id}
+              onClick={() => handleItemClick(item.id)}
+              whileTap={{ scale: 0.9 }}
+              animate={
+                isFound
+                  ? { scale: [1, 1.3, 1.1], rotate: [0, -5, 5, 0] }
+                  : {}
+              }
+              transition={{ type: 'spring', stiffness: 300 }}
               style={{
-                width: 72,
-                height: 72,
-                borderRadius: '50%',
-                background: found.has(item.id) ? item.color + '25' : 'rgba(255,255,255,0.05)',
-                border: `2px solid ${found.has(item.id) ? item.color : 'rgba(255,255,255,0.15)'}`,
+                position: 'absolute',
+                ...item.style,
+                transform: 'translate(-50%, -50%)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '1rem',
+                borderRadius: '1rem',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.3s',
+                gap: '0.5rem',
               }}
             >
-              <item.Icon size={36} color={found.has(item.id) ? item.color : 'rgba(255,255,255,0.4)'} />
-            </div>
-            <AnimatePresence>
-              {found.has(item.id) && (
-                <motion.span
-                  initial={{ opacity: 0, y: -8, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  style={{
-                    color: item.color,
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 600,
-                    fontSize: '0.85rem',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {item.label} ✓
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        ))}
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  background: isFound ? item.color + '25' : 'rgba(255,255,255,0.05)',
+                  border: `2px solid ${isFound ? item.color : 'rgba(255,255,255,0.15)'}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s',
+                }}
+              >
+                <item.Icon size={36} color={isFound ? item.color : 'rgba(255,255,255,0.4)'} />
+              </div>
+              {/* Label always visible after found */}
+              <span
+                style={{
+                  color: item.color,
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  opacity: isFound ? 1 : 0,
+                  transition: 'opacity 0.3s',
+                }}
+              >
+                {item.label} ✓
+              </span>
+            </motion.button>
+          )
+        })}
       </div>
 
       {/* Dark overlay with flashlight hole */}
@@ -169,26 +174,56 @@ export default function Section4Flashlight({ completed, onEnter, onLeave, onComp
           <motion.div
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-            style={{ position: 'absolute', inset: 0, background: 'black', ...maskStyle }}
-          />
+            style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+          >
+            {/* SVG mask – flashlight circle + permanent holes for found items */}
+            <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
+              <defs>
+                <mask id="flashlight-mask">
+                  {/* White = visible (dark overlay shows), Black = hidden (dark overlay is cut) */}
+                  <rect width="100%" height="100%" fill="white" />
+                  {/* Flashlight circle */}
+                  <circle cx={cursorPos.x} cy={cursorPos.y} r={RADIUS} fill="black" />
+                  {/* Permanent holes for found items */}
+                  {HIDDEN_ITEMS.filter(item => found.has(item.id)).map(item => (
+                    <circle
+                      key={item.id}
+                      cx={item.style.left}
+                      cy={item.style.top}
+                      r="70"
+                      fill="black"
+                    />
+                  ))}
+                </mask>
+              </defs>
+              <rect
+                width="100%"
+                height="100%"
+                fill="black"
+                mask="url(#flashlight-mask)"
+              />
+            </svg>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {/* Custom cursor dot */}
-      <div
-        style={{
-          position: 'absolute',
-          left: cursorPos.x - 6,
-          top: cursorPos.y - 6,
-          width: 12,
-          height: 12,
-          borderRadius: '50%',
-          background: 'rgba(255,240,180,0.8)',
-          pointerEvents: 'none',
-          zIndex: 50,
-          boxShadow: '0 0 8px 4px rgba(255,220,120,0.4)',
-        }}
-      />
+      {!done && (
+        <div
+          style={{
+            position: 'absolute',
+            left: cursorPos.x - 6,
+            top: cursorPos.y - 6,
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            background: 'rgba(255,240,180,0.8)',
+            pointerEvents: 'none',
+            zIndex: 50,
+            boxShadow: '0 0 8px 4px rgba(255,220,120,0.4)',
+          }}
+        />
+      )}
 
       {/* HUD – instructions + progress */}
       <div
@@ -204,7 +239,6 @@ export default function Section4Flashlight({ completed, onEnter, onLeave, onComp
         }}
       >
         <motion.h2
-          initial={{ opacity: 0 }}
           animate={{ opacity: done ? 0 : 1 }}
           style={{
             fontFamily: "'Playfair Display', serif",

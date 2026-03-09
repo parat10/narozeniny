@@ -220,29 +220,41 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
             height: '280px',
           }}
         >
-          {/* Reveal layer underneath */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <p
+          {/* Reveal layer underneath – nature image */}
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <img
+              src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80"
+              alt="Příroda"
               style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
-                color: '#D4AF37',
-                textAlign: 'center',
-                padding: '1rem',
-                lineHeight: 1.5,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'rgba(0,0,0,0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              🎁 Víkend v luxusním<br />domě na Jižní Moravě
-            </p>
+              <p
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
+                  color: '#D4AF37',
+                  textAlign: 'center',
+                  padding: '1rem',
+                  lineHeight: 1.5,
+                  textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                }}
+              >
+                🎁 Víkend v luxusním<br />domě na Jižní Moravě
+              </p>
+            </div>
           </div>
 
           {/* Scratch overlay canvas */}

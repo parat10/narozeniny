@@ -2,22 +2,93 @@ import { useRef, useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 
-// Czech regions in approximate geographic grid layout (col/row, 1-indexed)
+// Simplified SVG paths for Czech Republic regions (viewBox 0 0 500 300)
 const REGIONS = [
-  { id: 'karlovarsky', name: 'Karlovarský', col: 1, row: 1 },
-  { id: 'ustecky', name: 'Ústecký', col: 2, row: 1 },
-  { id: 'liberecky', name: 'Liberecký', col: 3, row: 1 },
-  { id: 'kralovehradecky', name: 'Královéhradecký', col: 4, row: 1 },
-  { id: 'plzensky', name: 'Plzeňský', col: 1, row: 2 },
-  { id: 'stredocesky', name: 'Středočeský', col: 2, row: 2 },
-  { id: 'praha', name: 'Praha', col: 3, row: 2 },
-  { id: 'pardubicky', name: 'Pardubický', col: 4, row: 2 },
-  { id: 'jihocesky', name: 'Jihočeský', col: 1, row: 3 },
-  { id: 'vysocina', name: 'Kraj Vysočina', col: 2, row: 3 },
-  { id: 'jihomoravsky', name: 'Jihomoravský ★', col: 3, row: 3, correct: true },
-  { id: 'olomoucky', name: 'Olomoucký', col: 4, row: 3 },
-  { id: 'zlinsky', name: 'Zlínský', col: 3, row: 4 },
-  { id: 'moravskoslezsky', name: 'Moravskoslezský', col: 4, row: 4 },
+  {
+    id: 'karlovarsky',
+    name: 'Karlovarský',
+    d: 'M25,125 L55,88 L100,78 L115,110 L98,140 L58,148 Z',
+    labelPos: { x: 65, y: 118 },
+  },
+  {
+    id: 'ustecky',
+    name: 'Ústecký',
+    d: 'M100,78 L148,48 L200,28 L220,58 L175,95 L115,110 Z',
+    labelPos: { x: 155, y: 78 },
+  },
+  {
+    id: 'liberecky',
+    name: 'Liberecký',
+    d: 'M200,28 L252,22 L285,40 L270,72 L240,80 L220,58 Z',
+    labelPos: { x: 245, y: 52 },
+  },
+  {
+    id: 'kralovehradecky',
+    name: 'Královéhradecký',
+    d: 'M285,40 L335,28 L372,52 L358,95 L320,110 L295,92 L270,72 Z',
+    labelPos: { x: 318, y: 70 },
+  },
+  {
+    id: 'plzensky',
+    name: 'Plzeňský',
+    d: 'M58,148 L98,140 L115,110 L145,130 L162,155 L165,182 L140,210 L88,218 L42,198 Z',
+    labelPos: { x: 108, y: 168 },
+  },
+  {
+    id: 'stredocesky',
+    name: 'Středočeský',
+    d: 'M175,95 L220,58 L240,80 L270,72 L295,92 L305,122 L292,155 L268,175 L235,190 L210,192 L180,192 L165,182 L162,155 L145,130 L115,110 Z',
+    labelPos: { x: 155, y: 148 },
+  },
+  {
+    id: 'praha',
+    name: 'Praha',
+    d: 'M200,128 L218,122 L228,135 L220,155 L200,155 L192,140 Z',
+    labelPos: { x: 210, y: 142 },
+  },
+  {
+    id: 'pardubicky',
+    name: 'Pardubický',
+    d: 'M295,92 L320,110 L358,95 L375,122 L358,158 L322,170 L292,155 L305,122 Z',
+    labelPos: { x: 328, y: 132 },
+  },
+  {
+    id: 'jihocesky',
+    name: 'Jihočeský',
+    d: 'M42,198 L88,218 L140,210 L165,182 L180,192 L210,192 L205,220 L190,258 L140,280 L95,275 L58,252 Z',
+    labelPos: { x: 128, y: 240 },
+  },
+  {
+    id: 'vysocina',
+    name: 'Vysočina',
+    d: 'M210,192 L235,190 L268,175 L292,155 L322,170 L328,198 L308,235 L268,252 L228,258 L195,250 L190,258 L205,220 Z',
+    labelPos: { x: 260, y: 218 },
+  },
+  {
+    id: 'jihomoravsky',
+    name: 'Jihomoravský',
+    correct: true,
+    d: 'M308,235 L328,198 L365,188 L398,208 L410,248 L385,275 L348,280 L318,268 Z',
+    labelPos: { x: 358, y: 240 },
+  },
+  {
+    id: 'olomoucky',
+    name: 'Olomoucký',
+    d: 'M358,158 L375,122 L418,92 L445,118 L438,168 L412,192 L398,208 L365,188 L328,198 L322,170 Z',
+    labelPos: { x: 388, y: 162 },
+  },
+  {
+    id: 'moravskoslezsky',
+    name: 'Moravskoslezský',
+    d: 'M418,92 L452,70 L478,88 L475,138 L458,168 L438,168 L445,118 Z',
+    labelPos: { x: 452, y: 118 },
+  },
+  {
+    id: 'zlinsky',
+    name: 'Zlínský',
+    d: 'M398,208 L412,192 L438,168 L458,168 L455,200 L442,228 L418,248 L410,248 Z',
+    labelPos: { x: 432, y: 210 },
+  },
 ]
 
 const WRONG_MESSAGES = [
@@ -30,7 +101,7 @@ const WRONG_MESSAGES = [
 
 export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }) {
   const sectionRef = useRef(null)
-  const [selected, setSelected] = useState(null)
+  const [hoveredId, setHoveredId] = useState(null)
   const [shakeId, setShakeId] = useState(null)
   const [wrongMsg, setWrongMsg] = useState(null)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -50,7 +121,6 @@ export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }
 
   const handleClick = useCallback((region) => {
     if (isCompleted) return
-    setSelected(region.id)
 
     if (region.correct) {
       setIsCompleted(true)
@@ -60,19 +130,14 @@ export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }
         origin: { y: 0.55 },
         colors: ['#D4AF37', '#FFD700', '#4ECDC4', '#26A69A', '#FFF8DC'],
         gravity: 0.8,
-        scalar: 1.1,
       })
       setTimeout(() => confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.5, x: 0.2 },
-        colors: ['#D4AF37', '#FFD700'],
+        particleCount: 100, spread: 80,
+        origin: { y: 0.5, x: 0.2 }, colors: ['#D4AF37', '#FFD700'],
       }), 300)
       setTimeout(() => confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.5, x: 0.8 },
-        colors: ['#4ECDC4', '#26A69A'],
+        particleCount: 100, spread: 80,
+        origin: { y: 0.5, x: 0.8 }, colors: ['#4ECDC4', '#26A69A'],
       }), 500)
       if (!completionTriggered.current) {
         completionTriggered.current = true
@@ -85,6 +150,13 @@ export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }
       setTimeout(() => setWrongMsg(null), 3000)
     }
   }, [isCompleted, onComplete])
+
+  // Determine font size based on region name length
+  const labelFontSize = (name) => {
+    if (name.length > 14) return '5.5px'
+    if (name.length > 10) return '6.5px'
+    return '7.5px'
+  }
 
   return (
     <div
@@ -107,7 +179,7 @@ export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            style={{ width: '100%', maxWidth: '680px', textAlign: 'center' }}
+            style={{ width: '100%', maxWidth: '720px', textAlign: 'center' }}
           >
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -121,65 +193,71 @@ export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }
             >
               Kam to vlastně jedeme?
             </motion.h2>
-            <p
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                color: '#6b7280',
-                marginBottom: '1.5rem',
-                fontSize: '0.95rem',
-              }}
-            >
-              Tipněte si kraj na mapě České republiky
+            <p style={{
+              fontFamily: 'Inter, sans-serif',
+              color: '#6b7280',
+              marginBottom: '1.5rem',
+              fontSize: '0.95rem',
+            }}>
+              Klikněte na správný kraj na mapě
             </p>
 
-            {/* Region grid – geographic layout */}
-            <div
+            {/* SVG Map of Czech Republic */}
+            <svg
+              viewBox="0 0 500 300"
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gridTemplateRows: 'repeat(4, auto)',
-                gap: '0.4rem',
                 width: '100%',
+                maxWidth: '680px',
+                height: 'auto',
               }}
             >
               {REGIONS.map((region) => {
+                const isHovered = hoveredId === region.id
                 const isShaking = shakeId === region.id
-                const isSelected = selected === region.id
+
                 return (
-                  <motion.button
-                    key={region.id}
-                    onClick={() => handleClick(region)}
-                    animate={
-                      isShaking
-                        ? { x: [0, -10, 10, -8, 8, -4, 4, 0], backgroundColor: '#FEE2E2' }
-                        : isSelected && region.correct
-                        ? { backgroundColor: '#D1FAE5', scale: [1, 1.06, 1] }
-                        : {}
-                    }
-                    whileHover={{ scale: 1.04, y: -2 }}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 400 }}
-                    style={{
-                      gridColumn: region.col,
-                      gridRow: region.row,
-                      padding: '0.6rem 0.3rem',
-                      borderRadius: '0.6rem',
-                      border: '1.5px solid #e5e7eb',
-                      background: 'white',
-                      fontSize: 'clamp(0.6rem, 1.2vw, 0.8rem)',
-                      fontFamily: 'Inter, sans-serif',
-                      color: 'var(--color-charcoal)',
-                      cursor: 'pointer',
-                      lineHeight: 1.3,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                      transition: 'border-color 0.2s, box-shadow 0.2s',
-                    }}
-                  >
-                    {region.name}
-                  </motion.button>
+                  <g key={region.id}>
+                    {/* Region shape */}
+                    <motion.path
+                      d={region.d}
+                      onClick={() => handleClick(region)}
+                      onMouseEnter={() => setHoveredId(region.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      animate={
+                        isShaking
+                          ? { x: [0, -4, 4, -3, 3, -1, 1, 0], fill: '#FECACA' }
+                          : {}
+                      }
+                      transition={isShaking ? { duration: 0.5 } : { duration: 0.2 }}
+                      style={{
+                        fill: isHovered ? '#e0ddd5' : '#ffffff',
+                        stroke: '#b0b0b0',
+                        strokeWidth: 1.2,
+                        cursor: 'pointer',
+                        transition: 'fill 0.15s',
+                      }}
+                    />
+                    {/* Region label */}
+                    <text
+                      x={region.labelPos.x}
+                      y={region.labelPos.y}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{
+                        fontSize: labelFontSize(region.name),
+                        fontFamily: 'Inter, sans-serif',
+                        fill: '#555',
+                        pointerEvents: 'none',
+                        fontWeight: isHovered ? 600 : 400,
+                        userSelect: 'none',
+                      }}
+                    >
+                      {region.name}
+                    </text>
+                  </g>
                 )
               })}
-            </div>
+            </svg>
 
             {/* Wrong answer tooltip */}
             <AnimatePresence>
@@ -214,34 +292,26 @@ export default function Section5Quiz({ completed, onEnter, onLeave, onComplete }
             style={{ textAlign: 'center' }}
           >
             <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>🎉</div>
-            <h3
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 'clamp(2rem, 6vw, 4rem)',
-                color: 'var(--color-charcoal)',
-                marginBottom: '0.5rem',
-              }}
-            >
+            <h3 style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 'clamp(2rem, 6vw, 4rem)',
+              color: 'var(--color-charcoal)',
+              marginBottom: '0.5rem',
+            }}>
               BINGO!
             </h3>
-            <p
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: 'clamp(1.1rem, 3vw, 1.6rem)',
-                color: 'var(--color-gold)',
-                fontStyle: 'italic',
-              }}
-            >
+            <p style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 'clamp(1.1rem, 3vw, 1.6rem)',
+              color: 'var(--color-gold)',
+              fontStyle: 'italic',
+            }}>
               Rosice u Brna vás volají!
             </p>
-            <p
-              style={{
-                marginTop: '1rem',
-                color: '#6b7280',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '0.9rem',
-              }}
-            >
+            <p style={{
+              marginTop: '1rem', color: '#6b7280',
+              fontFamily: 'Inter, sans-serif', fontSize: '0.9rem',
+            }}>
               Scrollujte dolů pro odhalení ↓
             </p>
           </motion.div>
