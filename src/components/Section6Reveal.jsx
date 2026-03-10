@@ -79,7 +79,7 @@ export default function Section6Reveal() {
         {/* Parallax image */}
         <motion.div style={{ scale: imageScale, position: 'absolute', inset: 0 }}>
           <img
-            src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425557.jpg"
+            src="/images/dum2.jpg"
             alt="Luxusní vila"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />

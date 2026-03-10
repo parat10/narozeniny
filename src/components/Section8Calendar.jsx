@@ -1,59 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useRef } from 'react'
+import { motion } from 'framer-motion'
 
-const MONTHS_CS = [
-  'Leden', 'Únor', 'Březen', 'Duben',
-  'Květen', 'Červen', 'Červenec', 'Srpen',
-  'Září', 'Říjen', 'Listopad', 'Prosinec',
-]
 const DAYS_CS = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
-
-// April 1, 2026 = Wednesday → index 2 (Mon-based)
-const TARGET_MONTH = 3 // April (0-indexed)
-const TARGET_YEAR = 2026
 const HIGHLIGHT_DAYS = [24, 25, 26]
 
-function getFirstDayOfMonth(year, month) {
-  const d = new Date(year, month, 1).getDay()
-  return d === 0 ? 6 : d - 1
-}
-function getDaysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate()
-}
+// April 2026: starts on Wednesday (index 2 in Mon-based week), 30 days
+const FIRST_DAY = 2
+const DAYS_IN_MONTH = 30
 
 export default function Section8Calendar() {
   const ref = useRef(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [displayMonth, setDisplayMonth] = useState(0)
-  const [animated, setAnimated] = useState(false)
-
-  // Use manual IntersectionObserver for reliable detection
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true)
-      },
-      { threshold: 0.3 }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (!isVisible || animated) return
-    setAnimated(true)
-    let month = 0
-    const interval = setInterval(() => {
-      month += 1
-      setDisplayMonth(month)
-      if (month >= TARGET_MONTH) clearInterval(interval)
-    }, 140)
-    return () => clearInterval(interval)
-  }, [isVisible, animated])
-
-  const isApril = displayMonth === TARGET_MONTH
-  const daysInMonth = getDaysInMonth(TARGET_YEAR, displayMonth)
-  const firstDay = getFirstDayOfMonth(TARGET_YEAR, displayMonth)
 
   return (
     <div
@@ -70,7 +26,8 @@ export default function Section8Calendar() {
     >
       <motion.p
         initial={{ opacity: 0, y: 16 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : {}}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-10%' }}
         transition={{ delay: 0.2 }}
         style={{
           fontFamily: 'Inter, sans-serif',
@@ -87,7 +44,8 @@ export default function Section8Calendar() {
       {/* Calendar card */}
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : {}}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-10%' }}
         transition={{ type: 'spring', stiffness: 100, delay: 0.1 }}
         style={{
           background: 'white',
@@ -108,25 +66,18 @@ export default function Section8Calendar() {
               letterSpacing: '0.1em',
             }}
           >
-            {TARGET_YEAR}
+            2026
           </span>
-          <AnimatePresence mode="wait">
-            <motion.h2
-              key={displayMonth}
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 16 }}
-              transition={{ duration: 0.08 }}
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: '2rem',
-                color: 'var(--color-charcoal)',
-                marginTop: '0.25rem',
-              }}
-            >
-              {MONTHS_CS[displayMonth]}
-            </motion.h2>
-          </AnimatePresence>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: '2rem',
+              color: 'var(--color-charcoal)',
+              marginTop: '0.25rem',
+            }}
+          >
+            Duben
+          </h2>
         </div>
 
         {/* Day headers */}
@@ -149,18 +100,16 @@ export default function Section8Calendar() {
           ))}
         </div>
 
-        {/* Calendar grid */}
+        {/* Calendar grid - April 2026 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.2rem' }}>
-          {/* Empty cells */}
-          {Array.from({ length: firstDay }).map((_, i) => (
+          {/* Empty cells for days before April 1 */}
+          {Array.from({ length: FIRST_DAY }).map((_, i) => (
             <div key={`e-${i}`} />
           ))}
           {/* Day cells */}
-          {Array.from({ length: daysInMonth }).map((_, i) => {
+          {Array.from({ length: DAYS_IN_MONTH }).map((_, i) => {
             const day = i + 1
-            const isHighlight = isApril && HIGHLIGHT_DAYS.includes(day)
-            const isFri = isHighlight && day === 24
-            const isSun = isHighlight && day === 26
+            const isHighlight = HIGHLIGHT_DAYS.includes(day)
 
             return (
               <motion.div
@@ -199,59 +148,56 @@ export default function Section8Calendar() {
           })}
         </div>
 
-        {/* Date text */}
-        <AnimatePresence>
-          {isApril && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, type: 'spring' }}
-              style={{
-                marginTop: '1.5rem',
-                paddingTop: '1.25rem',
-                borderTop: '1px solid #f3f4f6',
-                textAlign: 'center',
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.25rem',
-                  color: 'var(--color-charcoal)',
-                  marginBottom: '0.3rem',
-                  fontWeight: 600,
-                }}
-              >
-                Víkend od 24.4.2026 do 26.4.2026
-              </p>
-              <p
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  color: '#6b7280',
-                  fontSize: '0.85rem',
-                }}
-              >
-                Pátek · Sobota · Neděle
-              </p>
-              <div
-                style={{
-                  display: 'inline-block',
-                  marginTop: '0.75rem',
-                  padding: '0.35rem 1.1rem',
-                  background: 'linear-gradient(to right, #D4AF37, #F0C040)',
-                  borderRadius: '9999px',
-                  color: 'white',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.06em',
-                }}
-              >
-                ✓ Máme to zařízené
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Date text - always visible */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, type: 'spring' }}
+          style={{
+            marginTop: '1.5rem',
+            paddingTop: '1.25rem',
+            borderTop: '1px solid #f3f4f6',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: '1.25rem',
+              color: 'var(--color-charcoal)',
+              marginBottom: '0.3rem',
+              fontWeight: 600,
+            }}
+          >
+            24.4.2026 – 26.4.2026
+          </p>
+          <p
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              color: '#6b7280',
+              fontSize: '0.85rem',
+            }}
+          >
+            Pátek · Sobota · Neděle
+          </p>
+          <div
+            style={{
+              display: 'inline-block',
+              marginTop: '0.75rem',
+              padding: '0.35rem 1.1rem',
+              background: 'linear-gradient(to right, #D4AF37, #F0C040)',
+              borderRadius: '9999px',
+              color: 'white',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+            }}
+          >
+            ✓ Máme to zařízené
+          </div>
+        </motion.div>
       </motion.div>
     </div>
   )

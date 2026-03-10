@@ -180,7 +180,7 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
       {/* Background – blurred villa photo */}
       <div style={{ position: 'absolute', inset: 0 }}>
         <img
-          src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425605.jpg"
+          src="/images/dum.jpg"
           alt="Luxusní vila"
           style={{
             width: '100%',
@@ -223,8 +223,8 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
           {/* Reveal layer underneath – nature image */}
           <div style={{ position: 'absolute', inset: 0 }}>
             <img
-              src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300279.jpg"
-              alt="Příroda"
+              src="/images/dum6.jpg"
+              alt="Exteriér domu"
               style={{
                 width: '100%',
                 height: '100%',

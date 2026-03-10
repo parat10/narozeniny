@@ -4,12 +4,12 @@ import { MapPin, ExternalLink, Heart } from 'lucide-react'
 // Placeholder photos – family photos will be added later
 // First image is tagged as family placeholder
 const PHOTOS = [
-  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425557.jpg', alt: 'Vila' },
-  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425605.jpg', alt: 'Exteriér' },
-  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300279.jpg', alt: 'Dům' },
-  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300277.jpg', alt: 'Interiér' },
-  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/112922446.jpg', alt: 'Jezírko' },
-  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425538.jpg', alt: 'Zahrada' },
+  { src: '/images/rodina.jpg', alt: 'Rodina' },
+  { src: '/images/dum6.jpg', alt: 'Exteriér' },
+  { src: '/images/dum2.jpg', alt: 'Večeře u jezírka' },
+  { src: '/images/dum3.jpg', alt: 'Bazén' },
+  { src: '/images/dum4.jpg', alt: 'Sauna' },
+  { src: '/images/dum.jpg', alt: 'Obývák' },
 ]
 
 export default function Section9Finale() {
