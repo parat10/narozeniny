@@ -230,7 +230,7 @@ export default function Section9Finale() {
             fontWeight: 700,
           }}
         >
-          Máme vás rádi!
+          Máme vás rádi – Kryštof, Marek & Kája
         </p>
         <div
           style={{

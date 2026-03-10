@@ -193,31 +193,44 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)' }} />
       </div>
 
-      {/* Card container */}
-      <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '640px', padding: '0 1.5rem' }}>
+      {/* Card container – vertically compact to fit 100vh */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        width: '100%',
+        maxWidth: '640px',
+        padding: '0 1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        maxHeight: '90vh',
+      }}>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 100 }}
           style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: 'clamp(1.4rem, 3vw, 2rem)',
+            fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
             color: 'white',
             textAlign: 'center',
-            marginBottom: '1rem',
+            marginBottom: '0.75rem',
+            flexShrink: 0,
           }}
         >
           Tady se skrývá váš dárek&hellip;
         </motion.h2>
 
-        {/* Scratch canvas wrapper */}
+        {/* Scratch canvas wrapper – responsive height */}
         <div
           style={{
             position: 'relative',
             borderRadius: '1.25rem',
             overflow: 'hidden',
             boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
-            height: '280px',
+            height: 'clamp(180px, 38vh, 280px)',
+            width: '100%',
+            flexShrink: 0,
           }}
         >
           {/* Reveal layer underneath – nature image */}
