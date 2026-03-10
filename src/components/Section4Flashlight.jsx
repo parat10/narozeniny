@@ -77,19 +77,10 @@ export default function Section4Flashlight({ completed, onEnter, onLeave, onComp
     }
   }, [found, onComplete])
 
-  // Build mask: flashlight circle + permanent holes for found items
-  const buildMask = () => {
-    const masks = []
-    // Main flashlight circle
-    masks.push(
-      `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, transparent 100%)`
-    )
-    // The overall mask: black everywhere except flashlight + found items
-    // We use SVG mask instead for multiple holes
-    return {
-      WebkitMaskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
-      maskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
-    }
+  // CSS mask: flashlight circle at cursor position
+  const maskStyle = {
+    WebkitMaskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
+    maskImage: `radial-gradient(circle ${RADIUS}px at ${cursorPos.x}px ${cursorPos.y}px, transparent 0%, black 100%)`,
   }
 
   return (
@@ -105,107 +96,112 @@ export default function Section4Flashlight({ completed, onEnter, onLeave, onComp
         background: '#0a0a0a',
       }}
     >
-      {/* Background with clickable icons */}
-      <div style={{ position: 'absolute', inset: 0 }}>
-        {HIDDEN_ITEMS.map((item) => {
-          const isFound = found.has(item.id)
-          return (
-            <motion.button
-              key={item.id}
-              onClick={() => handleItemClick(item.id)}
-              whileTap={{ scale: 0.9 }}
-              animate={
-                isFound
-                  ? { scale: [1, 1.3, 1.1], rotate: [0, -5, 5, 0] }
-                  : {}
-              }
-              transition={{ type: 'spring', stiffness: 300 }}
+      {/* Layer 1: Hidden icon buttons (below overlay, clickable) */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+        {HIDDEN_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => handleItemClick(item.id)}
+            style={{
+              position: 'absolute',
+              ...item.style,
+              transform: 'translate(-50%, -50%)',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              width: 120,
+              height: 120,
+              borderRadius: '50%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.3rem',
+            }}
+          >
+            <div
               style={{
-                position: 'absolute',
-                ...item.style,
-                transform: 'translate(-50%, -50%)',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '1rem',
-                borderRadius: '1rem',
+                width: 72,
+                height: 72,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.05)',
+                border: '2px solid rgba(255,255,255,0.15)',
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.5rem',
+                justifyContent: 'center',
               }}
             >
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  background: isFound ? item.color + '25' : 'rgba(255,255,255,0.05)',
-                  border: `2px solid ${isFound ? item.color : 'rgba(255,255,255,0.15)'}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s',
-                }}
-              >
-                <item.Icon size={36} color={isFound ? item.color : 'rgba(255,255,255,0.4)'} />
-              </div>
-              {/* Label always visible after found */}
-              <span
-                style={{
-                  color: item.color,
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  opacity: isFound ? 1 : 0,
-                  transition: 'opacity 0.3s',
-                }}
-              >
-                {item.label} ✓
-              </span>
-            </motion.button>
-          )
-        })}
+              <item.Icon size={36} color="rgba(255,255,255,0.4)" />
+            </div>
+          </button>
+        ))}
       </div>
 
-      {/* Dark overlay with flashlight hole */}
+      {/* Layer 2: Dark overlay with flashlight hole (pointer-events: none) */}
       <AnimatePresence>
         {!done && (
           <motion.div
             exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
-            style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-          >
-            {/* SVG mask – flashlight circle + permanent holes for found items */}
-            <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0 }}>
-              <defs>
-                <mask id="flashlight-mask">
-                  {/* White = visible (dark overlay shows), Black = hidden (dark overlay is cut) */}
-                  <rect width="100%" height="100%" fill="white" />
-                  {/* Flashlight circle */}
-                  <circle cx={cursorPos.x} cy={cursorPos.y} r={RADIUS} fill="black" />
-                  {/* Permanent holes for found items */}
-                  {HIDDEN_ITEMS.filter(item => found.has(item.id)).map(item => (
-                    <circle
-                      key={item.id}
-                      cx={item.style.left}
-                      cy={item.style.top}
-                      r="70"
-                      fill="black"
-                    />
-                  ))}
-                </mask>
-              </defs>
-              <rect
-                width="100%"
-                height="100%"
-                fill="black"
-                mask="url(#flashlight-mask)"
-              />
-            </svg>
-          </motion.div>
+            transition={{ duration: 0.8 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'black',
+              zIndex: 2,
+              pointerEvents: 'none',
+              ...maskStyle,
+            }}
+          />
         )}
       </AnimatePresence>
+
+      {/* Layer 3: Found items (ABOVE overlay, always visible) */}
+      {HIDDEN_ITEMS.filter(item => found.has(item.id)).map(item => (
+        <motion.div
+          key={`found-${item.id}`}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 300 }}
+          style={{
+            position: 'absolute',
+            ...item.style,
+            transform: 'translate(-50%, -50%)',
+            zIndex: 10,
+            pointerEvents: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.4rem',
+          }}
+        >
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: item.color + '25',
+              border: `2px solid ${item.color}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 0 20px ${item.color}40`,
+            }}
+          >
+            <item.Icon size={36} color={item.color} />
+          </div>
+          <span
+            style={{
+              color: item.color,
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+            }}
+          >
+            {item.label} ✓
+          </span>
+        </motion.div>
+      ))}
 
       {/* Custom cursor dot */}
       {!done && (

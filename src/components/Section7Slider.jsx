@@ -17,7 +17,7 @@ export default function Section7Slider() {
     >
       {/* AFTER – relaxation (right side) */}
       <img
-        src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80"
+        src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300277.jpg"
         alt="Pohoda"
         style={{
           position: 'absolute',

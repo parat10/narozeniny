@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const MONTHS_CS = [
   'Leden', 'Únor', 'Březen', 'Duben',
@@ -23,12 +23,24 @@ function getDaysInMonth(year, month) {
 
 export default function Section8Calendar() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-20%' })
+  const [isVisible, setIsVisible] = useState(false)
   const [displayMonth, setDisplayMonth] = useState(0)
   const [animated, setAnimated] = useState(false)
 
+  // Use manual IntersectionObserver for reliable detection
   useEffect(() => {
-    if (!isInView || animated) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true)
+      },
+      { threshold: 0.3 }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isVisible || animated) return
     setAnimated(true)
     let month = 0
     const interval = setInterval(() => {
@@ -37,7 +49,7 @@ export default function Section8Calendar() {
       if (month >= TARGET_MONTH) clearInterval(interval)
     }, 140)
     return () => clearInterval(interval)
-  }, [isInView, animated])
+  }, [isVisible, animated])
 
   const isApril = displayMonth === TARGET_MONTH
   const daysInMonth = getDaysInMonth(TARGET_YEAR, displayMonth)
@@ -58,7 +70,7 @@ export default function Section8Calendar() {
     >
       <motion.p
         initial={{ opacity: 0, y: 16 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        animate={isVisible ? { opacity: 1, y: 0 } : {}}
         transition={{ delay: 0.2 }}
         style={{
           fontFamily: 'Inter, sans-serif',
@@ -75,7 +87,7 @@ export default function Section8Calendar() {
       {/* Calendar card */}
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+        animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : {}}
         transition={{ type: 'spring', stiffness: 100, delay: 0.1 }}
         style={{
           background: 'white',

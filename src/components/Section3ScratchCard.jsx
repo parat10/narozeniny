@@ -115,7 +115,7 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
     }
     const pct = Math.min(100, Math.round((transparent / total) * 100))
     setPercentage(pct)
-    if (pct >= 80 && !completionTriggered.current) {
+    if (pct >= 60 && !completionTriggered.current) {
       completionTriggered.current = true
       setTimeout(() => onComplete?.(), 600)
     }
@@ -180,7 +180,7 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
       {/* Background – blurred villa photo */}
       <div style={{ position: 'absolute', inset: 0 }}>
         <img
-          src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600&q=80"
+          src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425605.jpg"
           alt="Luxusní vila"
           style={{
             width: '100%',
@@ -223,7 +223,7 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
           {/* Reveal layer underneath – nature image */}
           <div style={{ position: 'absolute', inset: 0 }}>
             <img
-              src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80"
+              src="https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300279.jpg"
               alt="Příroda"
               style={{
                 width: '100%',
@@ -267,7 +267,7 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
               height: '100%',
               cursor: isScratching ? 'none' : 'crosshair',
               touchAction: 'none',
-              display: completed && percentage >= 80 ? 'none' : 'block',
+              display: completed && percentage >= 60 ? 'none' : 'block',
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -308,7 +308,7 @@ export default function Section3ScratchCard({ completed, onEnter, onLeave, onCom
               fontFamily: 'Inter, sans-serif',
             }}
           >
-            {percentage < 80 ? `${percentage}% odhaleno` : '✓ Skvělé! Scrollujte dolů ↓'}
+            {percentage < 60 ? `${percentage}% odhaleno` : '✓ Skvělé! Scrollujte dolů ↓'}
           </p>
         </div>
 

@@ -4,12 +4,12 @@ import { MapPin, ExternalLink, Heart } from 'lucide-react'
 // Placeholder photos – family photos will be added later
 // First image is tagged as family placeholder
 const PHOTOS = [
-  { src: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80', alt: 'Vila' },
-  { src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80', alt: 'Příroda' },
-  { src: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80', alt: 'Dům' },
-  { src: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=80', alt: 'Interiér' },
-  { src: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80', alt: 'Jezírko' },
-  { src: 'https://images.unsplash.com/photo-1498503403619-e39e4b5b9029?w=600&q=80', alt: 'Západ slunce' },
+  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425557.jpg', alt: 'Vila' },
+  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425605.jpg', alt: 'Exteriér' },
+  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300279.jpg', alt: 'Dům' },
+  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/222300277.jpg', alt: 'Interiér' },
+  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/112922446.jpg', alt: 'Jezírko' },
+  { src: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/107425538.jpg', alt: 'Zahrada' },
 ]
 
 export default function Section9Finale() {
